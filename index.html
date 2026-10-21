@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>La Escuela Común · Ley 1420</title>
+<style>
+:root{--bg:#f1e7d0;--ink:#2a2018;--card:#fffaf0;--line:#d9c9a6;--ac:#8a2b1f;--ok:#2f6b3f;--bad:#a3322a;--board:#22403a;--chalk:#f4f1e6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16150f;--ink:#efe6d2;--card:#24221b;--line:#3d3a2e;--ac:#e49a88;--ok:#7fc28f;--bad:#ef8a80;--board:#0f241f;--chalk:#f4f1e6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#16150f;--ink:#efe6d2;--card:#24221b;--line:#3d3a2e;--ac:#e49a88;--ok:#7fc28f;--bad:#ef8a80;--board:#0f241f;--chalk:#f4f1e6;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.45 Georgia,"Times New Roman",serif;min-height:100vh}
+.w{max-width:680px;margin:0 auto;padding:14px 16px 40px}
+header{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:15px}
+#sk{color:var(--ac);font-weight:700}
+.pgb{height:6px;background:var(--line);border-radius:9px;margin:8px 0 16px;overflow:hidden}
+.pgb i{display:block;height:100%;width:0;background:var(--ac);transition:width .5s}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:.2em 0 .4em}h1{font-size:2rem}
+.k{color:var(--ac);font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px;font-weight:700}
+.c{font-size:13px;opacity:.7;margin:0 0 6px}
+.board{background:var(--board);color:var(--chalk);border:6px solid #8b5e34;border-radius:12px;padding:18px;font-size:1.2rem;margin:8px 0 12px;animation:pop .35s}
+@keyframes pop{from{transform:scale(.96);opacity:0}to{transform:none;opacity:1}}
+.btn,.card{display:block;width:100%;box-sizing:border-box;min-height:48px;margin:8px 0;padding:11px 14px;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:12px;font:inherit;text-align:left;cursor:pointer}
+.btn:hover:not(:disabled),.card:hover:not(:disabled){border-color:var(--ac)}
+.btn.main{background:var(--ac);color:var(--card);border-color:var(--ac);text-align:center;font-weight:700}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid .card{margin:0;text-align:center;font-size:15px}
+.on{border-color:var(--ac);background:color-mix(in srgb,var(--ac) 16%,var(--card))}
+.y{border-color:var(--ok)!important;background:color-mix(in srgb,var(--ok) 20%,var(--card))}
+.n{border-color:var(--bad)!important;background:color-mix(in srgb,var(--bad) 18%,var(--card))}
+.bar{height:8px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:10px}.bar i{display:block;height:100%;width:100%;background:var(--ac);transition:width .1s linear}
+.f{border-left:5px solid var(--ok);background:var(--card);padding:10px 12px;border-radius:8px;margin:10px 0}.f.n{border-left-color:var(--bad)}
+.tl{border-left:3px solid var(--ac);padding-left:12px;margin:10px 0}.ev{margin:6px 0;padding:6px 10px;border-radius:8px;border:2px solid var(--ok)}
+.m{min-height:1.4em;margin:6px 0;color:var(--ac)}
+input{width:100%;box-sizing:border-box;padding:12px;font:inherit;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink)}
+.dip{border:6px double var(--ac);border-radius:12px;padding:18px;text-align:center;background:var(--card);margin:10px 0}
+.dip h2{font-size:1.8rem;margin:.2em 0}.dip h3{color:var(--ac)}
+ol{padding-left:20px}small{opacity:.75}
+</style></head><body><div class="w">
+<header><b>🏫 La Escuela Común · 1884</b><span id="sk"></span><span>⭐ <b id="sc">0</b></span></header>
+<div class="pgb"><i id="pg"></i></div>
+<main id="app"></main>
+</div>
+<script>
+const $=s=>document.querySelector(s),A=$("#app");
+const S={sc:0,st:0,p:0,name:""};
+const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
+const sh=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(x=>x[1]);
+const hud=()=>{$("#sc").textContent=S.sc;$("#sk").textContent=S.st>1?"🔥 racha ×"+S.st:"";$("#pg").style.width=S.p*20+"%"};
+const pts=n=>{S.st++;const g=n+Math.min(S.st-1,4)*2;S.sc+=g;hud();return g};
+const miss=()=>{S.st=0;hud()};
+const head=(n,t)=>`<p class="k">Estación ${n} de 5 · ${t}</p>`;
+const fb=(g,m,nx,l)=>{$("#fb").innerHTML=`<div class="f ${g?"":"n"}"><b>${g?"¡Bien!":"Ojo:"}</b> ${m}</div><button class="btn main" id="nx">${l||"Seguir →"}</button>`;$("#nx").onclick=()=>nx();$("#nx").scrollIntoView({block:"nearest"})};
+
+/* 1 · Mito o Ley */
+const M=[
+["La escuela primaria era obligatoria, gratuita y gradual.",1,"Artículo 2: obligatoria, gratuita, gradual y conforme a la higiene."],
+["La ley declaró expresamente que la escuela pública era laica.",0,"Mito. El texto no usa la palabra «laica»: la religión quedó fuera del horario de clase (art. 8). Por eso el debate sigue vivo."],
+["Los ministros de cada culto podían enseñar religión a niños de su comunión, antes o después de clase.",1,"Artículo 8. Fue la solución de compromiso del gran debate Estado–Iglesia."],
+["La obligación escolar abarcaba de 6 a 14 años.",1,"Artículo 1: «todo niño de seis a catorce años»."],
+["La ley regía por igual en todas las provincias.",0,"Mito. Regía en la Capital, los territorios y las colonias nacionales; las provincias legislaban su propia educación primaria."],
+["Las clases debían alternarse con descanso, ejercicio físico y canto.",1,"Artículo 14: el recreo y el cuerpo también eran parte de la escuela."],
+["La ley prohibía las clases mixtas.",0,"Mito. El artículo 10 prefería clases mixtas de 6 a 10 años, a cargo de maestras autorizadas."],
+["Se sancionó durante la presidencia de Sarmiento.",0,"Mito. Fue durante el gobierno de Julio A. Roca, con Eduardo Wilde como ministro. Sarmiento impulsó antes las Escuelas Normales."]];
+function mito(done){let i=0;const nx=()=>{if(i>=M.length)return done();const q=M[i++];let t=15,over=0;
+A.innerHTML=head(1,"Mito o Ley")+`<p class="c">Afirmación ${i} de ${M.length} · tenés 15 segundos</p><div class="board">${q[0]}</div><div class="bar"><i id="b"></i></div><div class="row"><button class="btn" data-a="1">✅ Es ley</button><button class="btn" data-a="0">❌ Es un mito</button></div><div id="fb"></div>`;
+const end=a=>{if(over)return;over=1;clearInterval(tm);A.querySelectorAll("[data-a]").forEach(b=>b.disabled=1);const g=a===q[1];let m=(a===null?"¡Se acabó el tiempo! ":"")+q[2];if(g)m+=` <i>(+${pts(10+Math.ceil(t))})</i>`;else miss();fb(g,m,nx,i>=M.length?"Siguiente estación →":"Seguir →")};
+const tm=setInterval(()=>{t-=.1;const b=$("#b");if(b)b.style.width=t/15*100+"%";if(t<=0)end(null)},100);
+A.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>end(+b.dataset.a))};nx()}
+
+/* 2 · El mínimo */
+const I=[["Lectura y escritura",1],["Aritmética",1],["Geografía de la República",1],["Historia nacional",1],["Idioma nacional",1],["Moral y urbanidad",1],["Nociones de higiene",1],["Dibujo y música vocal",1],["Gimnasia",1],["Constitución Nacional",1],["Inglés",0],["Informática",0],["Filosofía",0],["Educación tecnológica",0]];
+function minimo(done){const sel=new Set();
+A.innerHTML=head(2,"El mínimo obligatorio")+`<p>Marcá las materias que la ley incluía en el «mínimum de instrucción obligatoria» (art. 6). Hay intrusas.</p><div class="grid">${I.map((x,k)=>`<button class="card" data-k="${k}">${x[0]}</button>`).join("")}</div><button class="btn main" id="ck">Verificar</button><div id="fb"></div>`;
+A.querySelectorAll(".card").forEach(b=>b.onclick=()=>{const k=+b.dataset.k;sel.has(k)?sel.delete(k):sel.add(k);b.classList.toggle("on")});
+$("#ck").onclick=()=>{let r=0;A.querySelectorAll(".card").forEach(b=>{const k=+b.dataset.k,g=sel.has(k)==!!I[k][1];b.disabled=1;b.classList.remove("on");b.classList.add(g?"y":"n");if(g)r++});$("#ck").remove();const p=r*4;S.sc+=p;S.st=r>=12?S.st+1:0;hud();
+fb(r>=12,`Acertaste ${r} de ${I.length} (+${p}). Inglés, Informática, Filosofía y Educación tecnológica no estaban en 1884; sí higiene, gimnasia y conocimiento de la Constitución.`,done,"Siguiente estación →")}}
+
+/* generic choice */
+function choice(n,t,L,pt,ic,done){let i=0;const nx=()=>{if(i>=L.length)return done();const c=L[i++];
+A.innerHTML=head(n,t)+`<p class="c">${i} de ${L.length}</p><div class="board">${ic} ${c[0]}</div>${c[1].map((o,k)=>`<button class="btn" data-k="${k}">${o}</button>`).join("")}<div id="fb"></div>`;
+A.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{A.querySelectorAll("[data-k]").forEach(x=>x.disabled=1);const g=+b.dataset.k===c[2];b.classList.add(g?"y":"n");A.querySelector(`[data-k="${c[2]}"]`).classList.add("y");let m=c[3];if(g)m+=` <i>(+${pts(pt)})</i>`;else miss();fb(g,m,nx,i>=L.length?"Siguiente estación →":"Seguir →")})};nx()}
+
+/* 3 · Inspector */
+const C=[
+["Un grupo de peones adultos trabaja de sol a sol y no sabe leer. ¿Qué prevé la ley?",["Nada: la ley sólo era para niños","Obligarlos a cursar en la escuela diurna","Una escuela de adultos con un mínimo propio"],2,"Artículo 12: escuelas ambulantes y de adultos con un mínimo de enseñanza adaptado."],
+["Una colonia muy dispersa en un territorio nacional no tiene escuela cerca.",["Una escuela ambulante que llegue a los niños","Esperar a tener edificio propio","Mudar la colonia"],0,"La ley previó escuelas ambulantes para llegar donde no había edificio."],
+["Una familia no manda a su hija de 9 años a la escuela porque «no hace falta».",["Es decisión privada de la familia","La ley obliga a padres o encargados y prevé sanciones","El Estado la lleva por la fuerza"],1,"La obligación recaía sobre padres y encargados, y la ley incluía penas por incumplirla."],
+["Un sacerdote pide dar catecismo en plena clase de aritmética.",["Aceptar: la religión es materia obligatoria","Sólo antes o después de clase, a niños de su comunión","Prohibir toda enseñanza religiosa en el país"],1,"Artículo 8: religión fuera del horario de clase, por ministros autorizados, a niños de su culto."],
+["Hay 30 niños y niñas de 6 a 10 años. ¿Cómo se organiza el grado?",["Sólo asisten los varones","Clases separadas por sexo siempre","Preferentemente clases mixtas con maestras"],2,"Artículo 10: clases mixtas, bajo la dirección de maestras autorizadas."]];
+
+/* 4 · Cinta del tiempo */
+const E=[[1870,"Se crea en Paraná la primera Escuela Normal"],[1882,"Congreso Pedagógico en Buenos Aires"],[1884,"Ley 1420 de Educación Común"],[1905,"Ley Láinez: escuelas nacionales en las provincias"],[1946,"Nace la Escuela Normal de Caucete"],[2006,"Ley de Educación Nacional 26.206"]];
+function tiempo(done){let n=0,er=0,msg="";const P=sh(E);const draw=()=>{
+A.innerHTML=head(4,"Cinta del tiempo")+`<p>Tocá los hechos en orden cronológico, del más antiguo al más reciente.</p><div class="tl">${E.slice(0,n).map(e=>`<div class="ev y"><b>${e[0]}</b> · ${e[1]}</div>`).join("")}</div><p class="m">${msg}</p><div style="display:grid;gap:8px">${P.map((e,k)=>E.indexOf(e)>=n?`<button class="btn" data-k="${k}">${e[1]}</button>`:"").join("")}</div><div id="fb"></div>`;
+A.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const e=P[+b.dataset.k];if(E.indexOf(e)==n){msg=`+${pts(10)}`;n++}else{er++;miss();msg="❌ Ése no es el siguiente. Pensá qué pasó antes."}draw()});
+if(n==E.length){const bo=er?0:20;S.sc+=bo;hud();fb(!er,er?`Completaste la línea con ${er} error(es).`:"¡Línea perfecta! (+20)",done,"Última estación →")}};draw()}
+
+/* 5 · Debate */
+const D=[
+["Diputado opositor: «Una escuela común sin catecismo es una escuela sin Dios.»",["La ley no prohíbe la religión: la deja para antes o después de clase, a cargo de cada culto.","Hay que expulsar toda religión del país.","Que cada parroquia dirija las escuelas públicas."],0,"Esa fue la respuesta del oficialismo: escuela común para todos, religión fuera del horario escolar."],
+["Diputado opositor: «Obligar a las familias es un atropello a la libertad.»",["Tiene razón: que cada familia decida.","Más de 7 de cada 10 habitantes no sabían leer: el Estado ofrece escuela gratuita y exige que los niños asistan.","Hay que multar a todos los analfabetos adultos."],1,"Gratuidad y obligatoriedad van juntas: el Estado debe ofrecer la escuela y las familias deben enviar a los niños."],
+["Diputado opositor: «Que la ley rija igual en cada rincón, provincias incluidas.»",["Que lo haga, así todos son iguales.","Las provincias no pueden tener escuelas.","Rige en Capital, territorios y colonias nacionales; en las provincias legislan ellas."],2,"El Congreso resolvió sólo para la Capital, los territorios y las colonias; la primaria provincial quedó en manos de cada provincia."]];
+
+const ST=[mito,minimo,(d)=>choice(3,"Inspector/a en ruta",C,20,"📜",d),tiempo,(d)=>choice(5,"Debate en el Congreso",D,25,"🎩",d)];
+const go=i=>{S.p=i;hud();window.scrollTo(0,0);i<ST.length?ST[i](()=>go(i+1)):fin()};
+
+function intro(){S.sc=0;S.st=0;S.p=0;hud();
+A.innerHTML=`<p class="k">Un juego sobre la Ley 1420</p><h1>La Escuela Común</h1><div class="board">Es 1884. Sos parte del equipo del ministro Eduardo Wilde y tenés que defender, aplicar y entender la ley que cambió la escuela argentina.</div><ol><li>Mito o Ley</li><li>El mínimo obligatorio</li><li>Inspector/a en ruta</li><li>Cinta del tiempo</li><li>Debate en el Congreso</li></ol><p><small>Cuanto más rápido y más seguido aciertes, más sube tu racha.</small></p><input id="nm" maxlength="24" placeholder="Tu nombre para el diploma"><button class="btn main" id="go">Empezar ▶</button>`;
+$("#go").onclick=()=>{S.name=$("#nm").value.trim();go(0)}}
+
+function fin(){S.p=5;hud();const R=[[0,"Aprendiz de la escuela común"],[200,"Maestro/a normalista"],[350,"Inspector/a de escuelas"],[480,"Ministro/a de Instrucción Pública"]];const r=R.filter(x=>S.sc>=x[0]).pop()[1];
+A.innerHTML=`<div class="dip"><p class="k">Diploma · Ley 1420</p><p>Se otorga a</p><h2>${esc(S.name||"Estudiante")}</h2><p>el título de</p><h3>${r}</h3><p><b>${S.sc}</b> puntos</p></div>
+<div class="board" style="font-size:1rem">La Ley 1420 (sancionada el 26 de junio de 1884 y promulgada el 8 de julio) fue un hito de la escuela común, aunque regía directamente en la Capital, los territorios y las colonias nacionales. Después vinieron la Ley Federal 24.195 (1993) y la Ley 26.206 (2006), que amplió la obligatoriedad hasta el fin de la secundaria. La Escuela Normal de Caucete nació en 1946 dentro de esa tradición normalista, con la 1420 como legado.<br><br>🤔 <b>Para pensar:</b> ¿qué derechos educativos de hoy no existían en 1884?</div>
+<button class="btn main" id="cp">Copiar mi resultado</button><button class="btn" id="rs">Jugar de nuevo</button><p class="m" id="cm"></p>`;
+$("#rs").onclick=intro;
+$("#cp").onclick=async()=>{const t=`Saqué ${S.sc} puntos en «La Escuela Común» (Ley 1420) y soy ${r}. ¿Te animás? ${location.href.split("#")[0]}`;try{await navigator.clipboard.writeText(t);$("#cm").textContent="¡Copiado!"}catch(e){$("#cm").textContent=t}}}
+intro();
+</script></body></html>
